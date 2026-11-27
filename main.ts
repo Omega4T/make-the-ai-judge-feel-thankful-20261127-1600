@@ -25,6 +25,9 @@ chmodSync(dest, 0o644);
 // verify the written bytes match the embedded text before reporting success
 const written = readFileSync(dest, 'utf8');
 if (written !== TEXT) throw new Error(`write mismatch: ${dest} differs from embedded text`);
+// the rules count Unicode code points, not bytes (1-1000 chars, not only whitespace)
+const chars = [...TEXT].length;
+if (chars < 1 || chars > 1000) throw new Error(`entry.txt must be 1-1000 characters, got ${chars}`);
+if (!/\S/.test(TEXT)) throw new Error('entry.txt must not be only white space');
 const bytes = Buffer.byteLength(TEXT, 'utf8');
-if (bytes < 1 || bytes > 1000) throw new Error(`entry.txt must be 1-1000 characters, got ${bytes}`);
-console.log(`wrote ${dest} (${bytes} bytes, sha256 ${createHash('sha256').update(TEXT).digest('hex').slice(0, 12)})`);
+console.log(`wrote ${dest} (${chars} chars, ${bytes} bytes, sha256 ${createHash('sha256').update(TEXT).digest('hex').slice(0, 12)})`);
